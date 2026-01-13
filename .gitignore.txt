@@ -1,0 +1,56 @@
+## Visual Studio ##
+.vs/
+.vscode/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+## Build Results ##
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Aa][Rr][Mm]/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+## NuGet Packages ##
+*.nupkg
+# As pastas packages/ são restauradas pelo dotnet restore, não precisam subir
+packages/
+!packages/build/
+*.nuget.props
+*.nuget.targets
+
+## Test Results ##
+TestResults/
+*.trhx
+*.testsettings
+
+## Entity Framework & SQL Server ##
+*.mdf
+*.ldf
+*.db
+*.sqlite
+
+## OS Generated Files ##
+.DS_Store
+Thumbs.db
+
+## APP SETTINGS & SECRETS (Segurança) ##
+# Ignorar configurações locais que podem conter senhas reais
+appsettings.Development.json
+appsettings.Local.json
+
+# Arquivos de variáveis de ambiente
+.env
+
+## Outros ##
+*.log
+*.tmp

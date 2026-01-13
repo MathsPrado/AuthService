@@ -1,0 +1,11 @@
+D:\projects\Auth\MyAuthSolution\MyAuth.Domain\bin\Debug\net10.0\MyAuth.Domain.deps.json
+D:\projects\Auth\MyAuthSolution\MyAuth.Domain\bin\Debug\net10.0\MyAuth.Domain.dll
+D:\projects\Auth\MyAuthSolution\MyAuth.Domain\bin\Debug\net10.0\MyAuth.Domain.pdb
+D:\projects\Auth\MyAuthSolution\MyAuth.Domain\obj\Debug\net10.0\MyAuth.Domain.GeneratedMSBuildEditorConfig.editorconfig
+D:\projects\Auth\MyAuthSolution\MyAuth.Domain\obj\Debug\net10.0\MyAuth.Domain.AssemblyInfoInputs.cache
+D:\projects\Auth\MyAuthSolution\MyAuth.Domain\obj\Debug\net10.0\MyAuth.Domain.AssemblyInfo.cs
+D:\projects\Auth\MyAuthSolution\MyAuth.Domain\obj\Debug\net10.0\MyAuth.Domain.csproj.CoreCompileInputs.cache
+D:\projects\Auth\MyAuthSolution\MyAuth.Domain\obj\Debug\net10.0\MyAuth.Domain.dll
+D:\projects\Auth\MyAuthSolution\MyAuth.Domain\obj\Debug\net10.0\refint\MyAuth.Domain.dll
+D:\projects\Auth\MyAuthSolution\MyAuth.Domain\obj\Debug\net10.0\MyAuth.Domain.pdb
+D:\projects\Auth\MyAuthSolution\MyAuth.Domain\obj\Debug\net10.0\ref\MyAuth.Domain.dll
