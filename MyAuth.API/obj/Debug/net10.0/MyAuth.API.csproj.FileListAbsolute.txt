@@ -56,7 +56,6 @@ D:\projects\Auth\MyAuthSolution\MyAuth.API\bin\Debug\net10.0\Azure.Core.dll
 D:\projects\Auth\MyAuthSolution\MyAuth.API\bin\Debug\net10.0\Azure.Identity.dll
 D:\projects\Auth\MyAuthSolution\MyAuth.API\bin\Debug\net10.0\Humanizer.dll
 D:\projects\Auth\MyAuthSolution\MyAuth.API\bin\Debug\net10.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
-D:\projects\Auth\MyAuthSolution\MyAuth.API\bin\Debug\net10.0\Microsoft.AspNetCore.OpenApi.dll
 D:\projects\Auth\MyAuthSolution\MyAuth.API\bin\Debug\net10.0\Microsoft.Bcl.AsyncInterfaces.dll
 D:\projects\Auth\MyAuthSolution\MyAuth.API\bin\Debug\net10.0\Microsoft.Bcl.Cryptography.dll
 D:\projects\Auth\MyAuthSolution\MyAuth.API\bin\Debug\net10.0\Microsoft.Build.dll
@@ -89,6 +88,9 @@ D:\projects\Auth\MyAuthSolution\MyAuth.API\bin\Debug\net10.0\Microsoft.OpenApi.d
 D:\projects\Auth\MyAuthSolution\MyAuth.API\bin\Debug\net10.0\Microsoft.SqlServer.Server.dll
 D:\projects\Auth\MyAuthSolution\MyAuth.API\bin\Debug\net10.0\Mono.TextTemplating.dll
 D:\projects\Auth\MyAuthSolution\MyAuth.API\bin\Debug\net10.0\Newtonsoft.Json.dll
+D:\projects\Auth\MyAuthSolution\MyAuth.API\bin\Debug\net10.0\Swashbuckle.AspNetCore.Swagger.dll
+D:\projects\Auth\MyAuthSolution\MyAuth.API\bin\Debug\net10.0\Swashbuckle.AspNetCore.SwaggerGen.dll
+D:\projects\Auth\MyAuthSolution\MyAuth.API\bin\Debug\net10.0\Swashbuckle.AspNetCore.SwaggerUI.dll
 D:\projects\Auth\MyAuthSolution\MyAuth.API\bin\Debug\net10.0\System.ClientModel.dll
 D:\projects\Auth\MyAuthSolution\MyAuth.API\bin\Debug\net10.0\System.CodeDom.dll
 D:\projects\Auth\MyAuthSolution\MyAuth.API\bin\Debug\net10.0\System.Composition.AttributedModel.dll
@@ -203,6 +205,7 @@ D:\projects\Auth\MyAuthSolution\MyAuth.API\obj\Debug\net10.0\MyAuth.API.Assembly
 D:\projects\Auth\MyAuthSolution\MyAuth.API\obj\Debug\net10.0\MyAuth.API.csproj.CoreCompileInputs.cache
 D:\projects\Auth\MyAuthSolution\MyAuth.API\obj\Debug\net10.0\MyAuth.API.MvcApplicationPartsAssemblyInfo.cs
 D:\projects\Auth\MyAuthSolution\MyAuth.API\obj\Debug\net10.0\MyAuth.API.MvcApplicationPartsAssemblyInfo.cache
+D:\projects\Auth\MyAuthSolution\MyAuth.API\obj\Debug\net10.0\MyAuth.API.sourcelink.json
 D:\projects\Auth\MyAuthSolution\MyAuth.API\obj\Debug\net10.0\rjimswa.dswa.cache.json
 D:\projects\Auth\MyAuthSolution\MyAuth.API\obj\Debug\net10.0\rjsmrazor.dswa.cache.json
 D:\projects\Auth\MyAuthSolution\MyAuth.API\obj\Debug\net10.0\rjsmcshtml.dswa.cache.json
