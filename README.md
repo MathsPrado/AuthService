@@ -1,6 +1,6 @@
 # MyAuthSolution
 
-# 🔐 MyAuthSolution - API de Autenticação (.NET 10)  Solução de autenticação e autorização utilizando **ASP.NET Core (.NET 10)**, **Entity Framework Core**, **SQL Server** e **JWT (JSON Web Tokens)**. O projeto segue uma arquitetura em camadas para garantir desacoplamento e escalabilidade.  
+# 🔐 MyAuthSolution - API de Autenticação (.NET 10)  Solução de autenticação e autorização utilizando **ASP.NET Core (.NET 10)**, **Entity Framework Core**, **SQL Server** e **JWT (JSON Web Tokens)**. 
 --- 
 ## 🚀 Tecnologias e Pacotes  
 **Framework:** .NET 10 (Preview/Latest)
