@@ -5,7 +5,7 @@
 ## 🚀 Tecnologias e Pacotes  
 **Framework:** .NET 10 (Preview/Latest)
   * **Banco de Dados:** SQL Server (LocalDB ou Instância) * **ORM:**
-  *  EF Core 10 (Code First) * **Autenticação:** `Microsoft.AspNetCore.Authentication.JwtBearer`
+  *  EF Core 10 **Autenticação:** `Microsoft.AspNetCore.Authentication.JwtBearer`
   *   `Swashbuckle.AspNetCore` (v6.6.2)
       *Segurança:* Swagger configurado com `SecuritySchemeType.Http`.
 
