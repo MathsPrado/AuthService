@@ -32,8 +32,10 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<UserRole>()
             .HasOne(ur => ur.Role)
             .WithMany() // no navigation on Role side
-            .HasForeignKey(ur => ur.RoleId);
-
+            .HasForeignKey(ur => ur.RoleId);        // default SQL timestamp for audit field
+        modelBuilder.Entity<UserRole>()
+            .Property(ur => ur.AssignedAt)
+            .HasDefaultValueSql("GETUTCDATE()");
         modelBuilder.Entity<RolePermission>()
             .HasKey(rp => new { rp.RoleId, rp.PermissionId });
         modelBuilder.Entity<RolePermission>()
@@ -43,8 +45,9 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<RolePermission>()
             .HasOne(rp => rp.Permission)
             .WithMany() // no navigation on Permission side
-            .HasForeignKey(rp => rp.PermissionId);
-
+            .HasForeignKey(rp => rp.PermissionId);        modelBuilder.Entity<RolePermission>()
+            .Property(rp => rp.AssignedAt)
+            .HasDefaultValueSql("GETUTCDATE()");
         modelBuilder.Entity<UserPermission>()
             .HasKey(up => new { up.UserId, up.PermissionId });
         modelBuilder.Entity<UserPermission>()
@@ -54,6 +57,40 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<UserPermission>()
             .HasOne(up => up.Permission)
             .WithMany() // no navigation on Permission side
-            .HasForeignKey(up => up.PermissionId);
+            .HasForeignKey(up => up.PermissionId);        modelBuilder.Entity<UserPermission>()
+            .Property(up => up.AssignedAt)
+            .HasDefaultValueSql("GETUTCDATE()");
+        // seed data for testing/demo
+        modelBuilder.Entity<Role>().HasData(
+            new Role { Id = 1, Name = "Admin", Description = "Full access" },
+            new Role { Id = 2, Name = "User", Description = "Regular user" }
+        );
+
+        modelBuilder.Entity<Permission>().HasData(
+            new Permission { Id = 1, Name = "ReadUsers" },
+            new Permission { Id = 2, Name = "EditUsers" },
+            new Permission { Id = 3, Name = "DeleteUsers" }
+        );
+
+        modelBuilder.Entity<User>().HasData(
+            new User { Id = 1, Username = "admin", Password = "admin" },
+            new User { Id = 2, Username = "jdoe", Password = "password" }
+        );
+
+        modelBuilder.Entity<UserRole>().HasData(
+            new UserRole { UserId = 1, RoleId = 1, AssignedAt = new DateTime(2026,1,1) },
+            new UserRole { UserId = 2, RoleId = 2, AssignedAt = new DateTime(2026,1,1) }
+        );
+
+        modelBuilder.Entity<RolePermission>().HasData(
+            new RolePermission { RoleId = 1, PermissionId = 1, AssignedAt = new DateTime(2026,1,1) },
+            new RolePermission { RoleId = 1, PermissionId = 2, AssignedAt = new DateTime(2026,1,1) },
+            new RolePermission { RoleId = 1, PermissionId = 3, AssignedAt = new DateTime(2026,1,1) },
+            new RolePermission { RoleId = 2, PermissionId = 1, AssignedAt = new DateTime(2026,1,1) }
+        );
+
+        modelBuilder.Entity<UserPermission>().HasData(
+            new UserPermission { UserId = 2, PermissionId = 2, AssignedAt = new DateTime(2026,1,1) } // individual override
+        );
     }
 }

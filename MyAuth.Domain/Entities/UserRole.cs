@@ -9,5 +9,5 @@ public class UserRole
     public Role Role { get; set; } = null!;
 
     // informações adicionais de auditoria, se desejado
-    public DateTime AssignedAt { get; set; } = DateTime.UtcNow;
+    public DateTime AssignedAt { get; set; }
 }

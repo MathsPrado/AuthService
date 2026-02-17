@@ -8,5 +8,5 @@ public class RolePermission
     public int PermissionId { get; set; }
     public Permission Permission { get; set; } = null!;
 
-    public DateTime AssignedAt { get; set; } = DateTime.UtcNow;
+    public DateTime AssignedAt { get; set; }
 }
