@@ -23,6 +23,20 @@ public class AuthController : ControllerBase
         return Ok(new { token });
     }
 
+    [HttpPost("register")]
+    public async Task<IActionResult> Register([FromBody] RegisterRequest request)
+    {
+        var token = await _authService.RegisterAsync(
+            request.Username,
+            request.Password,
+            request.InitialRole);
+
+        if (token == null)
+            return BadRequest(new { message = "Nome de usuário já existe" });
+
+        return Ok(new { token });
+    }
+
     [Authorize] // Exige JWT válido
     [HttpGet("me")]
     public async Task<IActionResult> GetMe()
@@ -38,3 +52,5 @@ public class AuthController : ControllerBase
 }
 
 public record LoginRequest(string Username, string Password);
+
+public record RegisterRequest(string Username, string Password, string InitialRole = "User");

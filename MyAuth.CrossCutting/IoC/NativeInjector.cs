@@ -27,9 +27,24 @@ public static class NativeInjector
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IAuthService, AuthService>();
 
+        // role/permission support
+        services.AddScoped<IRoleRepository, RoleRepository>();
+        services.AddScoped<IPermissionRepository, PermissionRepository>();
+        services.AddScoped<IRoleService, RoleService>();
+        services.AddScoped<IPermissionService, PermissionService>();
+
         // 3. Configuração JWT (Segurança)
         var secretKey = configuration["JwtSettings:Secret"];
-        var key = Encoding.ASCII.GetBytes(secretKey!);
+
+        // O algoritmo HMACSHA256 exige uma chave de, no mínimo, 256 bits (32 bytes).
+        // Se a configuração estiver zerada ou muito curta teremos uma exceção IDX10720.
+        if (string.IsNullOrEmpty(secretKey) || Encoding.ASCII.GetByteCount(secretKey) < 32)
+        {
+            throw new InvalidOperationException("JwtSettings:Secret must be at least 32 ASCII characters (256 bits) to use HmacSha256. " +
+                                                "Configure a stronger key in appsettings or via environment variables.");
+        }
+
+        var key = Encoding.ASCII.GetBytes(secretKey);
 
         services.AddAuthentication(x => {
             x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;

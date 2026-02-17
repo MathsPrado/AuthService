@@ -27,7 +27,9 @@ public class AuthService : IAuthService
         // Validação de senha simples. 
         if (user == null || user.Password != password) return null;
 
-        return GenerateJwtToken(user);
+        var roles = await _userRepository.GetRolesAsync(user.Id);
+        var permissions = await _userRepository.GetPermissionsAsync(user.Id);
+        return GenerateJwtToken(user, roles, permissions);
     }
 
     public async Task<UserDto?> GetUserFromTokenAsync(string token)
@@ -43,7 +45,10 @@ public class AuthService : IAuthService
             var user = await _userRepository.GetByIdAsync(int.Parse(idClaim));
             if (user == null) return null;
 
-            return new UserDto(user.Username, user.Role, user.Permissions.Split(',').ToList());
+            var roles = await _userRepository.GetRolesAsync(user.Id);
+            var permissions = await _userRepository.GetPermissionsAsync(user.Id);
+
+            return new UserDto(user.Username, roles.ToList(), permissions.ToList());
         }
         catch
         {
@@ -51,19 +56,46 @@ public class AuthService : IAuthService
         }
     }
 
-    private string GenerateJwtToken(User user)
+    public async Task<string?> RegisterAsync(string username, string password, string initialRole = "User")
+    {
+        // verifica se já existe
+        if (await _userRepository.GetByUsernameAsync(username) != null)
+            return null;
+
+        var user = new User
+        {
+            Username = username,
+            Password = password
+        };
+
+        await _userRepository.AddAsync(user);
+
+        // opcionalmente atribuir role via outro serviço
+
+        // retorna token de acesso igual ao login automático
+        var roles = await _userRepository.GetRolesAsync(user.Id);
+        var permissions = await _userRepository.GetPermissionsAsync(user.Id);
+        return GenerateJwtToken(user, roles, permissions);
+    }
+
+    private string GenerateJwtToken(User user, IEnumerable<string> roles, IEnumerable<string> permissions)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
         // A chave vem do appsettings da API
         var key = Encoding.ASCII.GetBytes(_config["JwtSettings:Secret"]!);
 
+        var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.Name, user.Username),
+            new Claim("id", user.Id.ToString())
+        };
+        // adicionar múltiplos roles e permissões
+        claims.AddRange(roles.Select(r => new Claim(ClaimTypes.Role, r)));
+        claims.AddRange(permissions.Select(p => new Claim("permission", p)));
+
         var tokenDescriptor = new SecurityTokenDescriptor
         {
-            Subject = new ClaimsIdentity(new[] {
-                new Claim(ClaimTypes.Name, user.Username),
-                new Claim("id", user.Id.ToString()),
-                new Claim(ClaimTypes.Role, user.Role)
-            }),
+            Subject = new ClaimsIdentity(claims),
             Expires = DateTime.UtcNow.AddHours(2),
             SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
         };
