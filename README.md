@@ -1,82 +1,161 @@
 # MyAuthSolution
 
-# 🔐 MyAuthSolution - API de Autenticação (.NET 10)  Solução de autenticação e autorização utilizando **ASP.NET Core (.NET 10)**, **Entity Framework Core**, **SQL Server** e **JWT (JSON Web Tokens)**. 
---- 
-## 🚀 Tecnologias e Pacotes  
-**Framework:** .NET 10 (Preview/Latest)
-  * **Banco de Dados:** SQL Server (LocalDB ou Instância) * **ORM:**
-  *  EF Core 10 **Autenticação:** `Microsoft.AspNetCore.Authentication.JwtBearer`
-  *   `Swashbuckle.AspNetCore` (v6.6.2)
-      *Segurança:* Swagger configurado com `SecuritySchemeType.Http`.
+## Authentication and Authorization with .NET 10
 
- ## ️Arquitetura da Solução  O projeto está dividido em 4 camadas físicas:
-  1.  **MyAuth.Domain**: Entidades (`User`), Interfaces (`IUserRepository`, `IAuthService`) e DTOs. *Zero dependências.*
-  2.  **MyAuth.Data**: Implementação do EF Core (`AppDbContext`), Repositórios, Lógica JWT e **Migrations**.
-  3.  **MyAuth.CrossCutting**: Configuração de Injeção de Dependência (IoC).
-  4.  **MyAuth.API**: Controllers, `appsettings.json` e configuração do Swagger.
+MyAuthSolution provides a clean, modular starting point for building authentication
+and authorization services in ASP.NET Core. It combines JWT tokens, EF Core
+persistence and a flexible roles/permissions model, and ships with Swagger
+documentation out of the box.
 
- ## 🛠️ Configuração e Instalação  
- 
- ### 1. Configurar Banco de Dados
- No arquivo `MyAuth.API/appsettings.json`, ajuste a string de conexão:
-   * json "ConnectionStrings": {   "DefaultConnection": "Server=(localdb)\\mssqllocaldb;Database=MyAuthDb_SQL;Trusted_Connection=True;MultipleActiveResultSets=true" }
+Key features:
 
- ### 2. Configurar JWT
- A chave usada para assinar/validar o token JWT deve ter no mínimo **256 bits** (ou seja, **32 caracteres ASCII**). Uma chave curta causa o erro `IDX10720` em runtime:
+- Symmetric JWT tokens secured with 256-bit secret
+- Layered architecture (Domain / Data / CrossCutting / API)
+- Roles and permissions stored in normalized tables with many-to-many joins
+- RESTful controllers for users, roles and permissions
+- EF Core migrations compatible with Docker/remote SQL Server
 
- > "Unable to create KeyedHashAlgorithm for algorithm 'http://www.w3.org/2001/04/xmldsig-more#hmac-sha256', the key size must be greater than: '256' bits, key has '136' bits."
+---
 
- Edite ou substitua o segredo no `JwtSettings:Secret` por algo mais longo (por exemplo, uma string aleatória de 32+ caracteres) ou forneça via variável de ambiente em produção. A implementação já valida o comprimento e lançará uma exceção clara caso seja insuficiente.
+## Technologies
 
- Exemplo de configuração válida:
- ```json
- "JwtSettings": {
-   "Secret": "uX7$k9!aP0qR3sT6vWz2Yb8Nf5Hj1L0m"
- }
- ```
+Component             | Details
+--------------------- | ----------------------------------------
+.NET                  | 10 (latest stable release)
+Entity Framework Core | Version 10
+Database              | Microsoft SQL Server (LocalDB, container or remote)
+Authentication        | Microsoft.AspNetCore.Authentication.JwtBearer
+Documentation         | Swagger / Swashbuckle
 
-### 3. Modelo de permissões e roles
-Para maior flexibilidade, o modelo agora armazena **roles** e **permissions** em tabelas separadas. A estrutura de tabelas é:
+---
 
-| Tabela | Descrição |
-|--------|-----------|
-| `Permissions` | Cada registro representa uma permissão individual (ex.: `ReadUsers`, `EditProfile`, `ViewSales`). Pode haver campo de descrição ou screen.
-| `Roles`       | Conjuntos de permissões; também podem representar telas ou grupos lógicos.
-| `UserRoles`   | associação N:N entre usuários e roles.
-| `RolePermissions` | associação N:N entre roles e permissions.
-| `UserPermissions` | permissões atribuídas diretamente a um usuário (opcional).
+## Solution Structure
 
-O `User` deixou de conter campos de texto para role/permissions; essas informações passam a ser recuperadas através das tabelas de junção. Os serviços carregam os relacionamentos para gerar tokens e preencher o `UserDto`, que agora expõe listas de *roles* e *permissions*.
+The repository contains four projects:
 
+* **MyAuth.Domain** – domain entities, DTOs and interfaces. No external
+  dependencies.
+* **MyAuth.Data** – EF Core DbContext, repositories, services and migrations.
+* **MyAuth.CrossCutting** – dependency injection configuration.
+* **MyAuth.API** – ASP.NET Core application, controllers and middleware.
 
-> **Atenção:** depois de atualizar os modelos execute no projeto `MyAuth.Data` os comandos do Entity Framework:
-> ```bash
-> dotnet ef migrations add SplitRolesPermissions
-> dotnet ef database update
-> ```
->
-> **Importante para macOS/Linux:** o scaffolding de migrações não funciona com o provedor LocalDB. O `AppDbContextFactory` já usa uma conexão padrão `localhost,1433` e também aceita a variável de ambiente `MYAUTH_CONNECTION` para apontar a um servidor SQL (container, Azure, etc.). Configure conforme necessário antes de executar `dotnet ef database update`.
+This separation keeps business rules independent of infrastructure code and
+facilitates testing.
 
-### Novas APIs de roles e permissions
+---
 
-A aplicação agora inclui controladores REST dedicados para manipular *roles* e *permissions* de forma independente. Eles expõem endpoints para CRUD e também algumas rotas auxiliares que realizam os *joins* entre as tabelas -- por isso você não precisa usar as coleções de navegação diretamente.
+## Setup
 
-**Exemplos de rotas:**
+1. **Configure the database**
 
-* `GET /api/roles` — lista todas as roles
-* `GET /api/roles/{id}` — detalhes de uma role
-* `POST /api/roles` — cria nova role (`RoleDto`)
-* `POST /api/roles/{id}/permissions` — atribui uma permissão (envia `permissionId` no corpo)
-* `GET /api/roles/{id}/permissions` — retorna nomes das permissões associadas
+   Edit `MyAuth.API/appsettings.json` or set the environment variable
+   `MYAUTH_CONNECTION` with a valid SQL Server connection string. Example:
 
-* `GET /api/permissions` — lista permissões
-* `GET /api/permissions/{id}` — detalhes de uma permissão
-* `POST /api/permissions` — cria nova permissão (`PermissionDto`)
-* `GET /api/permissions/{id}/roles` — retorna nomes de roles que usam a permissão
+   ```json
+   "ConnectionStrings": {
+     "DefaultConnection": "Server=localhost,1433;Database=MyAuthDb_SQL;User Id=sa;Password=Your_password123;"
+   }
+   ```
 
-Essas rotas usam `RoleService`, `PermissionService` e os respectivos repositórios para realizar as junções necessárias. As entidades `Role` e `Permission` permanecem enxutas e não expõem propriedades de coleção para evitar acoplamento.
+   On macOS/Linux the LocalDB provider is not supported, so target a remote
+   or containerized instance instead.
 
-> **Observação:** a tabela de usuários agora se chama `UsersSystem` no banco de dados. Essa alteração foi feita para evitar conflitos quando já exista uma tabela `Users` em uma base pré‑existente. O `DbContext` mapeia automaticamente o `User` para `UsersSystem`.
+2. **Set the JWT secret**
 
-> ```
+   The JWT secret must be at least 256 bits (32 ASCII characters); a shorter
+   value will trigger an `IDX10720` error at runtime. The secret goes under
+   `JwtSettings:Secret` in configuration. The `NativeInjector` class validates
+   the length automatically.
+
+   ```json
+   "JwtSettings": {
+     "Secret": "your-32-or-more-character-secret"
+   }
+   ```
+
+3. **Apply migrations**
+
+   From the `MyAuth.Data` project directory run:
+
+   ```bash
+   dotnet ef migrations add InitialCreate
+   dotnet ef database update
+   ```
+
+   Whenever the data model changes (for example, when adding roles and
+   permissions) create and apply a new migration. If you are using a container
+   or Azure SQL, export `MYAUTH_CONNECTION` first so the design-time factory
+   uses the correct server.
+
+---
+
+## Roles and Permissions Model
+
+Permissions and roles are stored in separate tables with many-to-many
+junction tables:
+
+* `Permissions` – individual permissions such as `ReadUsers` or `EditProfile`.
+* `Roles` – groups of permissions.
+* `UserRoles`, `RolePermissions` and `UserPermissions` – join tables.
+
+Users no longer carry text fields for roles or permissions; the services load
+related entities and populate the `UserDto` with lists of role names and
+permission names.
+
+Note: the users table is named `UsersSystem` in the database to avoid conflicts
+with existing `Users` tables. Mapping is handled automatically by `AppDbContext`.
+
+---
+
+## API Endpoints
+
+Path                             | Method        | Description
+--------------------------------- | ------------- | -------------------------------
+`/api/auth/login`                 | POST          | Authenticate and obtain JWT token
+`/api/auth/register`              | POST          | Register a new user
+`/api/roles`                      | GET, POST     | List or create roles
+`/api/roles/{id}`                 | GET, PUT, DELETE | CRUD operations on a role
+`/api/roles/{id}/permissions`     | POST, GET, DELETE | Manage role permissions
+`/api/permissions`                | GET, POST     | List or create permissions
+`/api/permissions/{id}`           | GET, PUT, DELETE | CRUD operations on a permission
+`/api/permissions/{id}/roles`     | GET           | Roles associated with a permission
+
+Swagger UI is available at `/swagger` when the API is running.
+
+---
+
+## Running the Application
+
+From the solution root:
+
+```bash
+cd MyAuth.API
+
+dotnet run
+```
+
+The API will listen on `https://localhost:5001` by default (see
+`launchSettings.json`).
+
+---
+
+## Contributing
+
+Pull requests and suggestions are welcome. Possible improvements include:
+
+* Unit and integration tests.
+* Refresh token support.
+* External identity providers (OAuth, OpenID Connect).
+
+---
+
+## License
+
+This repository is a sample application. Feel free to adapt it for your own
+projects.
+
+---
+
+Thank you for using MyAuthSolution – built with care to demonstrate modern .NET
+practices.
 
