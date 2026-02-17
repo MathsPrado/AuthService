@@ -54,3 +54,5 @@ appsettings.Local.json
 ## Outros ##
 *.log
 *.tmp
+
+.fake
