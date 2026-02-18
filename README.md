@@ -139,6 +139,30 @@ The API will listen on `https://localhost:5001` by default (see
 
 ---
 
+## Running Tests
+
+The project includes unit tests covering services, repositories and configuration validation.
+
+```bash
+# Run all tests
+dotnet test
+
+# Run with minimal output
+dotnet test --nologo -v minimal
+
+# Run from a Docker container
+docker run -v $(pwd):/src mcr.microsoft.com/dotnet/sdk:10 dotnet test /src/MyAuth.Tests
+```
+
+**Why Tests Matter**
+
+Tests ensure that authentication and authorization logic work correctly and prevent
+regressions as the codebase evolves. This project uses xUnit and Moq to validate:
+login/register flows, repository CRUD operations, JWT token generation and secret
+validation. Run tests locally before pushing code.
+
+---
+
 ## Contributing
 
 Pull requests and suggestions are welcome. Possible improvements include:
@@ -155,7 +179,4 @@ This repository is a sample application. Feel free to adapt it for your own
 projects.
 
 ---
-
-Thank you for using MyAuthSolution – built with care to demonstrate modern .NET
-practices.
 
