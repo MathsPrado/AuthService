@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MyAuth.Data.Context;
 
@@ -11,9 +12,11 @@ using MyAuth.Data.Context;
 namespace MyAuth.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260217134249_SeedTestData")]
+    partial class SeedTestData
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -105,9 +108,7 @@ namespace MyAuth.Data.Migrations
                         .HasColumnType("int");
 
                     b.Property<DateTime>("AssignedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETUTCDATE()");
+                        .HasColumnType("datetime2");
 
                     b.HasKey("RoleId", "PermissionId");
 
@@ -120,25 +121,25 @@ namespace MyAuth.Data.Migrations
                         {
                             RoleId = 1,
                             PermissionId = 1,
-                            AssignedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                            AssignedAt = new DateTime(2026, 2, 17, 13, 42, 49, 194, DateTimeKind.Utc).AddTicks(8510)
                         },
                         new
                         {
                             RoleId = 1,
                             PermissionId = 2,
-                            AssignedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                            AssignedAt = new DateTime(2026, 2, 17, 13, 42, 49, 194, DateTimeKind.Utc).AddTicks(8720)
                         },
                         new
                         {
                             RoleId = 1,
                             PermissionId = 3,
-                            AssignedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                            AssignedAt = new DateTime(2026, 2, 17, 13, 42, 49, 194, DateTimeKind.Utc).AddTicks(8720)
                         },
                         new
                         {
                             RoleId = 2,
                             PermissionId = 1,
-                            AssignedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                            AssignedAt = new DateTime(2026, 2, 17, 13, 42, 49, 194, DateTimeKind.Utc).AddTicks(8720)
                         });
                 });
 
@@ -189,9 +190,7 @@ namespace MyAuth.Data.Migrations
                         .HasColumnType("int");
 
                     b.Property<DateTime>("AssignedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETUTCDATE()");
+                        .HasColumnType("datetime2");
 
                     b.HasKey("UserId", "PermissionId");
 
@@ -204,7 +203,7 @@ namespace MyAuth.Data.Migrations
                         {
                             UserId = 2,
                             PermissionId = 2,
-                            AssignedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                            AssignedAt = new DateTime(2026, 2, 17, 13, 42, 49, 194, DateTimeKind.Utc).AddTicks(8950)
                         });
                 });
 
@@ -217,9 +216,7 @@ namespace MyAuth.Data.Migrations
                         .HasColumnType("int");
 
                     b.Property<DateTime>("AssignedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETUTCDATE()");
+                        .HasColumnType("datetime2");
 
                     b.HasKey("UserId", "RoleId");
 
@@ -232,13 +229,13 @@ namespace MyAuth.Data.Migrations
                         {
                             UserId = 1,
                             RoleId = 1,
-                            AssignedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                            AssignedAt = new DateTime(2026, 2, 17, 13, 42, 49, 194, DateTimeKind.Utc).AddTicks(8030)
                         },
                         new
                         {
                             UserId = 2,
                             RoleId = 2,
-                            AssignedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                            AssignedAt = new DateTime(2026, 2, 17, 13, 42, 49, 194, DateTimeKind.Utc).AddTicks(8260)
                         });
                 });
 
