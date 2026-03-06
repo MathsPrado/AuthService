@@ -16,13 +16,11 @@ public class AppDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        // Mapear a entidade User para a tabela UsersSystem e garantir índice único no Username
         modelBuilder.Entity<User>()
             .ToTable("UsersSystem")
             .HasIndex(u => u.Username)
             .IsUnique();
 
-        // configurações many-to-many using join entities
         modelBuilder.Entity<UserRole>()
             .HasKey(ur => new { ur.UserId, ur.RoleId });
         modelBuilder.Entity<UserRole>()
@@ -31,8 +29,8 @@ public class AppDbContext : DbContext
             .HasForeignKey(ur => ur.UserId);
         modelBuilder.Entity<UserRole>()
             .HasOne(ur => ur.Role)
-            .WithMany() // no navigation on Role side
-            .HasForeignKey(ur => ur.RoleId);        // default SQL timestamp for audit field
+            .WithMany()
+            .HasForeignKey(ur => ur.RoleId);
         modelBuilder.Entity<UserRole>()
             .Property(ur => ur.AssignedAt)
             .HasDefaultValueSql("GETUTCDATE()");
@@ -44,7 +42,7 @@ public class AppDbContext : DbContext
             .HasForeignKey(rp => rp.RoleId);
         modelBuilder.Entity<RolePermission>()
             .HasOne(rp => rp.Permission)
-            .WithMany() // no navigation on Permission side
+            .WithMany()
             .HasForeignKey(rp => rp.PermissionId);        modelBuilder.Entity<RolePermission>()
             .Property(rp => rp.AssignedAt)
             .HasDefaultValueSql("GETUTCDATE()");
@@ -56,11 +54,10 @@ public class AppDbContext : DbContext
             .HasForeignKey(up => up.UserId);
         modelBuilder.Entity<UserPermission>()
             .HasOne(up => up.Permission)
-            .WithMany() // no navigation on Permission side
+            .WithMany()
             .HasForeignKey(up => up.PermissionId);        modelBuilder.Entity<UserPermission>()
             .Property(up => up.AssignedAt)
             .HasDefaultValueSql("GETUTCDATE()");
-        // seed data for testing/demo
         modelBuilder.Entity<Role>().HasData(
             new Role { Id = 1, Name = "Admin", Description = "Full access" },
             new Role { Id = 2, Name = "User", Description = "Regular user" }

@@ -38,6 +38,7 @@ namespace MyAuth.Data.Migrations
                 columns: new[] { "Id", "Password", "Username" },
                 values: new object[,]
                 {
+                    { 1, "admin123", "admin" },
                     { 2, "password", "jdoe" },
                     { 3, "secret", "alice" }
                 });
@@ -62,6 +63,7 @@ namespace MyAuth.Data.Migrations
                 columns: new[] { "RoleId", "UserId", "AssignedAt" },
                 values: new object[,]
                 {
+                    { 1, 1, new DateTime(2026, 1, 1) },
                     { 2, 2, new DateTime(2026, 1, 1) },
                     { 2, 3, new DateTime(2026, 1, 1) }
                 });
@@ -83,7 +85,12 @@ namespace MyAuth.Data.Migrations
 
             migrationBuilder.DeleteData(
                 table: "UserRoles",
+                keyColumns: new[] { "RoleI1, 1 });
+
+            migrationBuilder.DeleteData(
+                table: "UserRoles",
                 keyColumns: new[] { "RoleId", "UserId" },
+                keyValues: new object[] { d", "UserId" },
                 keyValues: new object[] { 2, 2 });
 
             migrationBuilder.DeleteData(
@@ -108,6 +115,11 @@ namespace MyAuth.Data.Migrations
 
             migrationBuilder.DeleteData(
                 table: "Roles",
+                keyColumn: "Id",
+                keyValue: 1);
+
+            migrationBuilder.DeleteData(
+                table: "UsersSystem",
                 keyColumn: "Id",
                 keyValue: 2);
 

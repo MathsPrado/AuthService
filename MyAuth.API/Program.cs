@@ -3,24 +3,21 @@ using MyAuth.CrossCutting.IoC;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 1. Configuração Global (Banco, Auth, Dependências)
 builder.Services.RegisterServices(builder.Configuration);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
-// 2. Configuração do Swagger com Suporte a JWT (Cadeado)
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "MyAuth.API", Version = "v1" });
 
-    // --- ALTERAÇÃO: Usando Type = Http em vez de ApiKey ---
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
-        Description = "Cole seu token JWT aqui (não precisa escrever 'Bearer')",
+        Description = "JWT Authorization header using the Bearer scheme",
         Name = "Authorization",
         In = ParameterLocation.Header,
-        Type = SecuritySchemeType.Http, // <--- Isso faz a mágica
+        Type = SecuritySchemeType.Http, // <--- Isso faz a mï¿½gica
         Scheme = "Bearer",
         BearerFormat = "JWT"
     });
@@ -31,7 +28,7 @@ builder.Services.AddSwaggerGen(c =>
             new OpenApiSecurityScheme
             {
                 Reference = new OpenApiReference
-                {
+        Type = SecuritySchemeType.Http,
                     Type = ReferenceType.SecurityScheme,
                     Id = "Bearer"
                 }
@@ -42,8 +39,6 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 var app = builder.Build();
-
-// 3. Pipeline
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -52,8 +47,8 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseAuthentication(); // Quem é você?
-app.UseAuthorization();  // O que você pode fazer?
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapControllers();
 
