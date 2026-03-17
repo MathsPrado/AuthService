@@ -13,6 +13,8 @@ public class AppDbContext : DbContext
     public DbSet<UserRole> UserRoles { get; set; }
     public DbSet<RolePermission> RolePermissions { get; set; }
     public DbSet<UserPermission> UserPermissions { get; set; }
+    public DbSet<Page> Pages { get; set; }
+    public DbSet<RolePage> RolePages { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -58,6 +60,31 @@ public class AppDbContext : DbContext
             .HasForeignKey(up => up.PermissionId);        modelBuilder.Entity<UserPermission>()
             .Property(up => up.AssignedAt)
             .HasDefaultValueSql("GETUTCDATE()");
+        // Page
+        modelBuilder.Entity<Page>(entity =>
+        {
+            entity.HasKey(p => p.Id);
+            entity.HasIndex(p => p.Name).IsUnique();
+            entity.ToTable("Screens"); // manter nome da tabela existente no banco
+        });
+
+        // RolePage (muitos-para-muitos)
+        modelBuilder.Entity<RolePage>()
+            .HasKey(rp => new { rp.RoleId, rp.PageId });
+        modelBuilder.Entity<RolePage>()
+            .HasOne(rp => rp.Role)
+            .WithMany(r => r.RolePages)
+            .HasForeignKey(rp => rp.RoleId);
+        modelBuilder.Entity<RolePage>()
+            .HasOne(rp => rp.Page)
+            .WithMany()
+            .HasForeignKey(rp => rp.PageId);
+        modelBuilder.Entity<RolePage>()
+            .Property(rp => rp.AssignedAt)
+            .HasDefaultValueSql("GETUTCDATE()");
+        modelBuilder.Entity<RolePage>()
+            .ToTable("RoleScreens"); // manter nome da tabela existente no banco
+
         modelBuilder.Entity<Role>().HasData(
             new Role { Id = 1, Name = "Admin", Description = "Full access" },
             new Role { Id = 2, Name = "User", Description = "Regular user" }
@@ -88,6 +115,23 @@ public class AppDbContext : DbContext
 
         modelBuilder.Entity<UserPermission>().HasData(
             new UserPermission { UserId = 2, PermissionId = 2, AssignedAt = new DateTime(2026,1,1) } // individual override
+        );
+
+        // Seed Pages
+        modelBuilder.Entity<Page>().HasData(
+            new Page { Id = 1, Name = "Dashboard", Description = "Tela principal", Route = "/dashboard" },
+            new Page { Id = 2, Name = "UserManagement", Description = "Gerenciamento de usuários", Route = "/admin/users" },
+            new Page { Id = 3, Name = "RoleManagement", Description = "Gerenciamento de roles", Route = "/admin/roles" },
+            new Page { Id = 4, Name = "Reports", Description = "Relatórios", Route = "/reports" }
+        );
+
+        // Admin tem acesso a todas as telas, User apenas ao Dashboard
+        modelBuilder.Entity<RolePage>().HasData(
+            new RolePage { RoleId = 1, PageId = 1, AssignedAt = new DateTime(2026,1,1) },
+            new RolePage { RoleId = 1, PageId = 2, AssignedAt = new DateTime(2026,1,1) },
+            new RolePage { RoleId = 1, PageId = 3, AssignedAt = new DateTime(2026,1,1) },
+            new RolePage { RoleId = 1, PageId = 4, AssignedAt = new DateTime(2026,1,1) },
+            new RolePage { RoleId = 2, PageId = 1, AssignedAt = new DateTime(2026,1,1) }
         );
     }
 }

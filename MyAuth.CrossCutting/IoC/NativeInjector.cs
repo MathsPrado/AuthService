@@ -32,6 +32,8 @@ public static class NativeInjector
         services.AddScoped<IPermissionRepository, PermissionRepository>();
         services.AddScoped<IRoleService, RoleService>();
         services.AddScoped<IPermissionService, PermissionService>();
+        services.AddScoped<IPageRepository, PageRepository>();
+        services.AddScoped<IPageService, PageService>();
 
         // 3. Configuração JWT (Segurança)
         var secretKey = configuration["JwtSettings:Secret"];
