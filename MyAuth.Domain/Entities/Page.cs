@@ -1,12 +1,11 @@
 namespace MyAuth.Domain.Entities;
 
-public class Role
+public class Page
 {
     public int Id { get; set; }
     public string Name { get; set; } = string.Empty;
     public string? Description { get; set; }
+    public string? Route { get; set; }
 
-    public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
-    public ICollection<RolePermission> RolePermissions { get; set; } = new List<RolePermission>();
     public ICollection<RolePage> RolePages { get; set; } = new List<RolePage>();
 }
