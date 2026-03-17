@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("MyAuth.CrossCutting")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c00f632875b1d44f61d60bb4a17dbb502c66e8e2")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+493de6f62aa65ec9b056976890bb5b05c45b6537")]
 [assembly: System.Reflection.AssemblyProductAttribute("MyAuth.CrossCutting")]
 [assembly: System.Reflection.AssemblyTitleAttribute("MyAuth.CrossCutting")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
