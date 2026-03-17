@@ -31,7 +31,7 @@ public class AppDbContext : DbContext
             .HasForeignKey(ur => ur.UserId);
         modelBuilder.Entity<UserRole>()
             .HasOne(ur => ur.Role)
-            .WithMany()
+            .WithMany(r => r.UserRoles)
             .HasForeignKey(ur => ur.RoleId);
         modelBuilder.Entity<UserRole>()
             .Property(ur => ur.AssignedAt)
@@ -40,12 +40,13 @@ public class AppDbContext : DbContext
             .HasKey(rp => new { rp.RoleId, rp.PermissionId });
         modelBuilder.Entity<RolePermission>()
             .HasOne(rp => rp.Role)
-            .WithMany() // no navigation on Role side
+            .WithMany(r => r.RolePermissions)
             .HasForeignKey(rp => rp.RoleId);
         modelBuilder.Entity<RolePermission>()
             .HasOne(rp => rp.Permission)
-            .WithMany()
-            .HasForeignKey(rp => rp.PermissionId);        modelBuilder.Entity<RolePermission>()
+            .WithMany(p => p.RolePermissions)
+            .HasForeignKey(rp => rp.PermissionId);
+        modelBuilder.Entity<RolePermission>()
             .Property(rp => rp.AssignedAt)
             .HasDefaultValueSql("GETUTCDATE()");
         modelBuilder.Entity<UserPermission>()
@@ -56,8 +57,9 @@ public class AppDbContext : DbContext
             .HasForeignKey(up => up.UserId);
         modelBuilder.Entity<UserPermission>()
             .HasOne(up => up.Permission)
-            .WithMany()
-            .HasForeignKey(up => up.PermissionId);        modelBuilder.Entity<UserPermission>()
+            .WithMany(p => p.UserPermissions)
+            .HasForeignKey(up => up.PermissionId);
+        modelBuilder.Entity<UserPermission>()
             .Property(up => up.AssignedAt)
             .HasDefaultValueSql("GETUTCDATE()");
         // Page
@@ -77,7 +79,7 @@ public class AppDbContext : DbContext
             .HasForeignKey(rp => rp.RoleId);
         modelBuilder.Entity<RolePage>()
             .HasOne(rp => rp.Page)
-            .WithMany()
+            .WithMany(p => p.RolePages)
             .HasForeignKey(rp => rp.PageId);
         modelBuilder.Entity<RolePage>()
             .Property(rp => rp.AssignedAt)

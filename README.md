@@ -4,121 +4,232 @@
 
 MyAuthSolution provides a clean, modular starting point for building authentication
 and authorization services in ASP.NET Core. It combines JWT tokens, EF Core
-persistence and a flexible roles/permissions model, and ships with Swagger
+persistence and a flexible roles/permissions/pages model, and ships with Swagger
 documentation out of the box.
 
 Key features:
 
 - Symmetric JWT tokens secured with 256-bit secret
 - Layered architecture (Domain / Data / CrossCutting / API)
-- Roles and permissions stored in normalized tables with many-to-many joins
-- RESTful controllers for users, roles and permissions
+- Roles, permissions and pages stored in normalized tables with many-to-many joins
+- RESTful controllers for users, roles, permissions and pages
 - EF Core migrations compatible with Docker/remote SQL Server
 
 ---
 
 ## Technologies
 
-Component             | Details
---------------------- | ----------------------------------------
-.NET                  | 10 (latest stable release)
-Entity Framework Core | Version 10
-Database              | Microsoft SQL Server (LocalDB, container or remote)
-Authentication        | Microsoft.AspNetCore.Authentication.JwtBearer
-Documentation         | Swagger / Swashbuckle
+| Component             | Details                                        |
+|-----------------------|------------------------------------------------|
+| .NET                  | 10                                             |
+| Entity Framework Core | 10                                             |
+| Database              | Microsoft SQL Server (LocalDB, container or remote) |
+| Authentication        | Microsoft.AspNetCore.Authentication.JwtBearer  |
+| Documentation         | Swagger / Swashbuckle                          |
 
 ---
 
 ## Solution Structure
 
-The repository contains four projects:
+```
+MyAuthSolution/
+├── MyAuth.Domain        → Entities, DTOs, Interfaces (zero dependencies)
+├── MyAuth.Data          → DbContext, Repositories, Services, Migrations
+├── MyAuth.CrossCutting  → Dependency Injection, JWT configuration
+├── MyAuth.API           → Controllers, Program.cs, appsettings
+└── MyAuth.Tests         → Unit tests (xUnit + Moq)
+```
 
-* **MyAuth.Domain** – domain entities, DTOs and interfaces. No external
-  dependencies.
-* **MyAuth.Data** – EF Core DbContext, repositories, services and migrations.
-* **MyAuth.CrossCutting** – dependency injection configuration.
-* **MyAuth.API** – ASP.NET Core application, controllers and middleware.
+| Project              | Responsibility                                         |
+|----------------------|--------------------------------------------------------|
+| **MyAuth.Domain**    | Domain entities, DTOs and interface contracts          |
+| **MyAuth.Data**      | EF Core DbContext, repositories, services and migrations |
+| **MyAuth.CrossCutting** | Centralized DI registration and JWT setup           |
+| **MyAuth.API**       | ASP.NET Core controllers and HTTP pipeline             |
+| **MyAuth.Tests**     | Unit tests for services and repositories               |
 
-This separation keeps business rules independent of infrastructure code and
-facilitates testing.
+---
+
+## Data Model
+
+### Entity Relationship Diagram
+
+```mermaid
+erDiagram
+    User ||--o{ UserRole : "has"
+    User ||--o{ UserPermission : "has"
+    Role ||--o{ UserRole : "belongs to"
+    Role ||--o{ RolePermission : "has"
+    Role ||--o{ RolePage : "has"
+    Permission ||--o{ RolePermission : "belongs to"
+    Permission ||--o{ UserPermission : "belongs to"
+    Page ||--o{ RolePage : "belongs to"
+
+    User {
+        int Id PK
+        string Username UK
+        string Password
+    }
+    Role {
+        int Id PK
+        string Name
+        string Description
+    }
+    Permission {
+        int Id PK
+        string Name
+        string Description
+    }
+    Page {
+        int Id PK
+        string Name
+        string Description
+        string Route
+    }
+```
+
+### What is each entity?
+
+| Entity         | Answers the question                          | Examples                              |
+|----------------|-----------------------------------------------|---------------------------------------|
+| **Role**       | "What access group does the user belong to?"  | Admin, Manager, User                  |
+| **Page**       | "Which screens can this group see?"           | Dashboard, UserManagement, Reports    |
+| **Permission** | "What can the user do inside those screens?"  | ReadUsers, EditUsers, DeleteUsers     |
+
+### How they connect
+
+| Relationship            | Join Table       | Meaning                                     |
+|-------------------------|------------------|---------------------------------------------|
+| `User` ↔ `Role`        | `UserRole`       | Which roles the user has                    |
+| `Role` ↔ `Page`        | `RolePage`       | Which pages the role can access             |
+| `Role` ↔ `Permission`  | `RolePermission` | Which actions the role can perform          |
+| `User` ↔ `Permission`  | `UserPermission` | Individual permission override for a user   |
+
+### Practical Example
+
+```
+User "admin" (Role: Admin)
+├── Pages (via Role):        Dashboard, UserManagement, RoleManagement, Reports
+├── Permissions (via Role):  ReadUsers, EditUsers, DeleteUsers
+└── Permissions (direct):    (none)
+
+User "jdoe" (Role: User)
+├── Pages (via Role):        Dashboard
+├── Permissions (via Role):  ReadUsers
+└── Permissions (direct):    EditUsers  ← individual override
+```
+
+> **Role** is the central piece: it defines **what the user sees** (Pages) and
+> **what the user can do** (Permissions). `UserPermission` exists to grant
+> individual permissions without changing the role.
+
+### Navigation Properties
+
+```
+User
+├── UserRoles[]        → each UserRole has .Role
+└── UserPermissions[]  → each UserPermission has .Permission
+
+Role
+├── UserRoles[]        → each UserRole has .User
+├── RolePermissions[]  → each RolePermission has .Permission
+└── RolePages[]        → each RolePage has .Page
+
+Permission
+├── RolePermissions[]  → each RolePermission has .Role
+└── UserPermissions[]  → each UserPermission has .User
+
+Page
+└── RolePages[]        → each RolePage has .Role
+```
+
+> The `UsersSystem` table name is used in the database to avoid conflicts with
+> reserved `Users` tables. Mapping is handled by `AppDbContext.ToTable("UsersSystem")`.
 
 ---
 
 ## Setup
 
-1. **Configure the database**
+### 1. Configure the database
 
-   Edit `MyAuth.API/appsettings.json` or set the environment variable
-   `MYAUTH_CONNECTION` with a valid SQL Server connection string. Example:
+Edit `MyAuth.API/appsettings.json` with a valid SQL Server connection string:
 
-   ```json
-   "ConnectionStrings": {
-     "DefaultConnection": "Server=localhost,1433;Database=MyAuthDb_SQL;User Id=sa;Password=Your_password123;"
-   }
-   ```
+```json
+"ConnectionStrings": {
+  "DefaultConnection": "Server=YOUR_SERVER;Database=MyAuthDb_SQL;User Id=sa;Password=Your_password;TrustServerCertificate=True;"
+}
+```
 
-   On macOS/Linux the LocalDB provider is not supported, so target a remote
-   or containerized instance instead.
+### 2. Set the JWT secret
 
-2. **Set the JWT secret**
+The secret must be **at least 32 ASCII characters** (256 bits). A shorter value
+triggers an `IDX10720` error at runtime. `NativeInjector` validates this automatically.
 
-   The JWT secret must be at least 256 bits (32 ASCII characters); a shorter
-   value will trigger an `IDX10720` error at runtime. The secret goes under
-   `JwtSettings:Secret` in configuration. The `NativeInjector` class validates
-   the length automatically.
+```json
+"JwtSettings": {
+  "Secret": "your-32-or-more-character-secret"
+}
+```
 
-   ```json
-   "JwtSettings": {
-     "Secret": "your-32-or-more-character-secret"
-   }
-   ```
+### 3. Apply migrations
 
-3. **Apply migrations**
+```bash
+# from the solution root
+dotnet ef migrations add InitialCreate --project MyAuth.Data --startup-project MyAuth.API
+dotnet ef database update --project MyAuth.Data --startup-project MyAuth.API
+```
 
-   From the `MyAuth.Data` project directory run:
+If `dotnet ef database update` fails due to connection timeout, generate the SQL
+script and apply it directly:
 
-   ```bash
-   dotnet ef migrations add InitialCreate
-   dotnet ef database update
-   ```
-
-   Whenever the data model changes (for example, when adding roles and
-   permissions) create and apply a new migration. If you are using a container
-   or Azure SQL, export `MYAUTH_CONNECTION` first so the design-time factory
-   uses the correct server.
-
----
-
-## Roles and Permissions Model
-
-Permissions and roles are stored in separate tables with many-to-many
-junction tables:
-
-* `Permissions` – individual permissions such as `ReadUsers` or `EditProfile`.
-* `Roles` – groups of permissions.
-* `UserRoles`, `RolePermissions` and `UserPermissions` – join tables.
-
-Users no longer carry text fields for roles or permissions; the services load
-related entities and populate the `UserDto` with lists of role names and
-permission names.
-
-Note: the users table is named `UsersSystem` in the database to avoid conflicts
-with existing `Users` tables. Mapping is handled automatically by `AppDbContext`.
+```bash
+dotnet ef migrations script --project MyAuth.Data --startup-project MyAuth.API --output migrations.sql
+sqlcmd -S YOUR_SERVER -U sa -P Your_password -d MyAuthDb_SQL -i migrations.sql
+```
 
 ---
 
 ## API Endpoints
 
-Path                             | Method        | Description
---------------------------------- | ------------- | -------------------------------
-`/api/auth/login`                 | POST          | Authenticate and obtain JWT token
-`/api/auth/register`              | POST          | Register a new user
-`/api/roles`                      | GET, POST     | List or create roles
-`/api/roles/{id}`                 | GET, PUT, DELETE | CRUD operations on a role
-`/api/roles/{id}/permissions`     | POST, GET, DELETE | Manage role permissions
-`/api/permissions`                | GET, POST     | List or create permissions
-`/api/permissions/{id}`           | GET, PUT, DELETE | CRUD operations on a permission
-`/api/permissions/{id}/roles`     | GET           | Roles associated with a permission
+### Auth (`/api/auth`)
+
+| Method   | Route                | Auth     | Description                              |
+|----------|----------------------|----------|------------------------------------------|
+| `POST`   | `/api/auth/login`    | Public   | Authenticate and obtain JWT token        |
+| `POST`   | `/api/auth/register` | Public   | Register a new user and return JWT       |
+| `GET`    | `/api/auth/me`       | Bearer   | Get current user info from token         |
+
+### Roles (`/api/role`)
+
+| Method   | Route                         | Description                            |
+|----------|-------------------------------|----------------------------------------|
+| `GET`    | `/api/role`                   | List all roles (with pages included)   |
+| `GET`    | `/api/role/{id}`              | Get role by ID (with pages included)   |
+| `POST`   | `/api/role`                   | Create a new role                      |
+| `POST`   | `/api/role/{id}/permissions`  | Assign a permission to a role          |
+| `GET`    | `/api/role/{id}/permissions`  | List permissions of a role             |
+| `POST`   | `/api/role/{id}/pages`        | Assign a page to a role                |
+| `DELETE` | `/api/role/{id}/pages/{pageId}` | Remove a page from a role            |
+
+### Permissions (`/api/permission`)
+
+| Method   | Route                         | Description                            |
+|----------|-------------------------------|----------------------------------------|
+| `GET`    | `/api/permission`             | List all permissions                   |
+| `GET`    | `/api/permission/{id}`        | Get permission by ID                   |
+| `POST`   | `/api/permission`             | Create a new permission                |
+| `GET`    | `/api/permission/{id}/roles`  | List roles that have this permission   |
+
+### Pages (`/api/page`)
+
+| Method   | Route                         | Description                            |
+|----------|-------------------------------|----------------------------------------|
+| `GET`    | `/api/page`                   | List all pages                         |
+| `GET`    | `/api/page/{id}`              | Get page by ID                         |
+| `POST`   | `/api/page`                   | Create a new page                      |
+| `GET`    | `/api/page/{id}/roles`        | List roles that can access this page   |
+| `POST`   | `/api/page/{id}/roles`        | Assign a role to this page             |
+| `DELETE` | `/api/page/{id}/roles/{roleId}` | Remove a role from this page         |
 
 Swagger UI is available at `/swagger` when the API is running.
 
@@ -126,22 +237,25 @@ Swagger UI is available at `/swagger` when the API is running.
 
 ## Running the Application
 
-From the solution root:
-
 ```bash
-cd MyAuth.API
-
-dotnet run
+cd MyAuthSolution
+dotnet run --project MyAuth.API --launch-profile http
 ```
 
-The API will listen on `https://localhost:5001` by default (see
-`launchSettings.json`).
+The API will listen on `http://localhost:5180` (see `launchSettings.json`).
+
+### Seed Data
+
+After applying migrations, the following test data is available:
+
+| Username | Password | Role  | Pages                                            |
+|----------|----------|-------|--------------------------------------------------|
+| admin    | admin    | Admin | Dashboard, UserManagement, RoleManagement, Reports |
+| jdoe     | password | User  | Dashboard                                        |
 
 ---
 
 ## Running Tests
-
-The project includes unit tests covering services, repositories and configuration validation.
 
 ```bash
 # Run all tests
@@ -149,17 +263,7 @@ dotnet test
 
 # Run with minimal output
 dotnet test --nologo -v minimal
-
-# Run from a Docker container
-docker run -v $(pwd):/src mcr.microsoft.com/dotnet/sdk:10 dotnet test /src/MyAuth.Tests
 ```
-
-**Why Tests Matter**
-
-Tests ensure that authentication and authorization logic work correctly and prevent
-regressions as the codebase evolves. This project uses xUnit and Moq to validate:
-login/register flows, repository CRUD operations, JWT token generation and secret
-validation. Run tests locally before pushing code.
 
 ---
 
@@ -167,9 +271,10 @@ validation. Run tests locally before pushing code.
 
 Pull requests and suggestions are welcome. Possible improvements include:
 
-* Unit and integration tests.
-* Refresh token support.
-* External identity providers (OAuth, OpenID Connect).
+* Refresh token support
+* Password hashing (BCrypt, Argon2)
+* External identity providers (OAuth, OpenID Connect)
+* Role-based authorization policies on controllers
 
 ---
 
@@ -177,6 +282,4 @@ Pull requests and suggestions are welcome. Possible improvements include:
 
 This repository is a sample application. Feel free to adapt it for your own
 projects.
-
----
 
