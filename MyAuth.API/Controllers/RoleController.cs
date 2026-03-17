@@ -10,7 +10,10 @@ public class RoleController : ControllerBase
 {
     private readonly IRoleService _roleService;
 
-    public RoleController(IRoleService roleService) => _roleService = roleService;
+    public RoleController(IRoleService roleService)
+    {
+        _roleService = roleService;
+    }
 
     [HttpGet]
     public async Task<IActionResult> GetAll()
@@ -34,7 +37,6 @@ public class RoleController : ControllerBase
         return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
     }
 
-    // assign permission to role
     [HttpPost("{id}/permissions")]
     public async Task<IActionResult> AssignPermission(int id, [FromBody] int permissionId)
     {
@@ -47,5 +49,19 @@ public class RoleController : ControllerBase
     {
         var list = await _roleService.GetPermissionsAsync(id);
         return Ok(list);
+    }
+
+    [HttpPost("{id}/pages")]
+    public async Task<IActionResult> AssignPage(int id, [FromBody] int pageId)
+    {
+        await _roleService.AssignPageAsync(id, pageId);
+        return NoContent();
+    }
+
+    [HttpDelete("{id}/pages/{pageId}")]
+    public async Task<IActionResult> RemovePage(int id, int pageId)
+    {
+        await _roleService.RemovePageAsync(id, pageId);
+        return NoContent();
     }
 }

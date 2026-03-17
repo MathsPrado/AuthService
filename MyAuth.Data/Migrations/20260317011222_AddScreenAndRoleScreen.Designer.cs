@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MyAuth.Data.Context;
 
@@ -11,9 +12,11 @@ using MyAuth.Data.Context;
 namespace MyAuth.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260317011222_AddScreenAndRoleScreen")]
+    partial class AddScreenAndRoleScreen
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,62 +24,6 @@ namespace MyAuth.Data.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("MyAuth.Domain.Entities.Page", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Route")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Name")
-                        .IsUnique();
-
-                    b.ToTable("Screens", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Description = "Tela principal",
-                            Name = "Dashboard",
-                            Route = "/dashboard"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Description = "Gerenciamento de usuários",
-                            Name = "UserManagement",
-                            Route = "/admin/users"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Description = "Gerenciamento de roles",
-                            Name = "RoleManagement",
-                            Route = "/admin/roles"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Description = "Relatórios",
-                            Name = "Reports",
-                            Route = "/reports"
-                        });
-                });
 
             modelBuilder.Entity("MyAuth.Domain.Entities.Permission", b =>
                 {
@@ -130,6 +77,9 @@ namespace MyAuth.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Screen")
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
 
                     b.ToTable("Roles");
@@ -146,58 +96,6 @@ namespace MyAuth.Data.Migrations
                             Id = 2,
                             Description = "Regular user",
                             Name = "User"
-                        });
-                });
-
-            modelBuilder.Entity("MyAuth.Domain.Entities.RolePage", b =>
-                {
-                    b.Property<int>("RoleId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("PageId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("AssignedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETUTCDATE()");
-
-                    b.HasKey("RoleId", "PageId");
-
-                    b.HasIndex("PageId");
-
-                    b.ToTable("RoleScreens", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            RoleId = 1,
-                            PageId = 1,
-                            AssignedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
-                        },
-                        new
-                        {
-                            RoleId = 1,
-                            PageId = 2,
-                            AssignedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
-                        },
-                        new
-                        {
-                            RoleId = 1,
-                            PageId = 3,
-                            AssignedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
-                        },
-                        new
-                        {
-                            RoleId = 1,
-                            PageId = 4,
-                            AssignedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
-                        },
-                        new
-                        {
-                            RoleId = 2,
-                            PageId = 1,
-                            AssignedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         });
                 });
 
@@ -244,6 +142,114 @@ namespace MyAuth.Data.Migrations
                             RoleId = 2,
                             PermissionId = 1,
                             AssignedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                        });
+                });
+
+            modelBuilder.Entity("MyAuth.Domain.Entities.RoleScreen", b =>
+                {
+                    b.Property<int>("RoleId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ScreenId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("AssignedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.HasKey("RoleId", "ScreenId");
+
+                    b.HasIndex("ScreenId");
+
+                    b.ToTable("RoleScreens");
+
+                    b.HasData(
+                        new
+                        {
+                            RoleId = 1,
+                            ScreenId = 1,
+                            AssignedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            ScreenId = 2,
+                            AssignedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            ScreenId = 3,
+                            AssignedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            ScreenId = 4,
+                            AssignedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                        },
+                        new
+                        {
+                            RoleId = 2,
+                            ScreenId = 1,
+                            AssignedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                        });
+                });
+
+            modelBuilder.Entity("MyAuth.Domain.Entities.Screen", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Route")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("Screens");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Description = "Tela principal",
+                            Name = "Dashboard",
+                            Route = "/dashboard"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Description = "Gerenciamento de usuários",
+                            Name = "UserManagement",
+                            Route = "/admin/users"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Description = "Gerenciamento de roles",
+                            Name = "RoleManagement",
+                            Route = "/admin/roles"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Description = "Relatórios",
+                            Name = "Reports",
+                            Route = "/reports"
                         });
                 });
 
@@ -347,25 +353,6 @@ namespace MyAuth.Data.Migrations
                         });
                 });
 
-            modelBuilder.Entity("MyAuth.Domain.Entities.RolePage", b =>
-                {
-                    b.HasOne("MyAuth.Domain.Entities.Page", "Page")
-                        .WithMany()
-                        .HasForeignKey("PageId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("MyAuth.Domain.Entities.Role", "Role")
-                        .WithMany()
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Page");
-
-                    b.Navigation("Role");
-                });
-
             modelBuilder.Entity("MyAuth.Domain.Entities.RolePermission", b =>
                 {
                     b.HasOne("MyAuth.Domain.Entities.Permission", "Permission")
@@ -383,6 +370,25 @@ namespace MyAuth.Data.Migrations
                     b.Navigation("Permission");
 
                     b.Navigation("Role");
+                });
+
+            modelBuilder.Entity("MyAuth.Domain.Entities.RoleScreen", b =>
+                {
+                    b.HasOne("MyAuth.Domain.Entities.Role", "Role")
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MyAuth.Domain.Entities.Screen", "Screen")
+                        .WithMany()
+                        .HasForeignKey("ScreenId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Role");
+
+                    b.Navigation("Screen");
                 });
 
             modelBuilder.Entity("MyAuth.Domain.Entities.UserPermission", b =>
