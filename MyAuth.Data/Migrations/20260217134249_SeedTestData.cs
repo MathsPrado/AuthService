@@ -85,12 +85,12 @@ namespace MyAuth.Data.Migrations
 
             migrationBuilder.DeleteData(
                 table: "UserRoles",
-                keyColumns: new[] { "RoleI1, 1 });
+                keyColumns: new[] { "RoleId", "UserId" },
+                keyValues: new object[] { 1, 1 });
 
             migrationBuilder.DeleteData(
                 table: "UserRoles",
                 keyColumns: new[] { "RoleId", "UserId" },
-                keyValues: new object[] { d", "UserId" },
                 keyValues: new object[] { 2, 2 });
 
             migrationBuilder.DeleteData(
