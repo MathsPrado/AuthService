@@ -48,7 +48,10 @@ public class AuthService : IAuthService
             var roles = await _userRepository.GetRolesAsync(user.Id);
             var permissions = await _userRepository.GetPermissionsAsync(user.Id);
 
-            return new UserDto(user.Username, roles.ToList(), permissions.ToList());
+            var roleDtos = roles.Select(r => new RoleDto(0, r, null, [])).ToList();
+            var permDtos = permissions.Select(p => new PermissionDto(0, p, null)).ToList();
+
+            return new UserDto(user.Id, user.Username, roleDtos, permDtos);
         }
         catch
         {
