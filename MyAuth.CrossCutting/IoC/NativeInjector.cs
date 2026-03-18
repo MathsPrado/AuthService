@@ -26,6 +26,7 @@ public static class NativeInjector
         // 2. Injeção de Dependência (Repositories e Services)
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<IUserService, UserService>();
 
         // role/permission support
         services.AddScoped<IRoleRepository, RoleRepository>();

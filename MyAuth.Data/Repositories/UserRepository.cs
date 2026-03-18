@@ -18,7 +18,17 @@ public class UserRepository : IUserRepository
 
     public async Task<User?> GetByIdAsync(int id) =>
         await _context.UsersSystem
+            .Include(u => u.UserRoles).ThenInclude(ur => ur.Role)
+                .ThenInclude(r => r.RolePages).ThenInclude(rp => rp.Page)
+            .Include(u => u.UserPermissions).ThenInclude(up => up.Permission)
             .FirstOrDefaultAsync(u => u.Id == id);
+
+    public async Task<IEnumerable<User>> GetAllAsync() =>
+        await _context.UsersSystem
+            .Include(u => u.UserRoles).ThenInclude(ur => ur.Role)
+                .ThenInclude(r => r.RolePages).ThenInclude(rp => rp.Page)
+            .Include(u => u.UserPermissions).ThenInclude(up => up.Permission)
+            .ToListAsync();
 
     public async Task AddAsync(User user)
     {
@@ -36,12 +46,32 @@ public class UserRepository : IUserRepository
         }
     }
 
+    public async Task RemoveRoleAsync(int userId, int roleId)
+    {
+        var entity = await _context.UserRoles.FindAsync(userId, roleId);
+        if (entity != null)
+        {
+            _context.UserRoles.Remove(entity);
+            await _context.SaveChangesAsync();
+        }
+    }
+
     public async Task AssignPermissionAsync(int userId, int permissionId)
     {
         var exists = await _context.UserPermissions.FindAsync(userId, permissionId);
         if (exists == null)
         {
             _context.UserPermissions.Add(new UserPermission { UserId = userId, PermissionId = permissionId });
+            await _context.SaveChangesAsync();
+        }
+    }
+
+    public async Task RemovePermissionAsync(int userId, int permissionId)
+    {
+        var entity = await _context.UserPermissions.FindAsync(userId, permissionId);
+        if (entity != null)
+        {
+            _context.UserPermissions.Remove(entity);
             await _context.SaveChangesAsync();
         }
     }
